@@ -2,6 +2,10 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 
+# Dynamic partitions (retrofit)
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
+PRODUCT_RETROFIT_DYNAMIC_PARTITIONS := true
+
 # A/B support
 AB_OTA_UPDATER := true
 
@@ -10,10 +14,13 @@ AB_OTA_UPDATER := true
 # more partitions to this list for the bootloader and radio.
 AB_OTA_PARTITIONS += \
     boot \
+    dtbo \
+    odm \
+    product \
     system \
-    vendor \
+    system_ext \
     vbmeta \
-    dtbo
+    vendor
 
 PRODUCT_PACKAGES += \
     otapreopt_script \
