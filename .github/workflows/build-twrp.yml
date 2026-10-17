@@ -33,4 +33,27 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "ci@users.noreply.github.com"
-          repo init -u https://github.com/minimal-manifest-t
+          repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-14.1 --depth=1
+
+      - name: Sync sources
+        run: repo sync -j$(nproc --all) -c --no-clone-bundle --no-tags
+
+      - name: Clone device tree
+        run: |
+          rm -rf device/sony/tama
+          git clone https://github.com/aoi-itsme/recovery_device_sony_tama.git -b android-14.1 device/sony/tama
+
+      - name: Build
+        run: |
+          unset JAVAC JAVA_HOME LEX
+          export ALLOW_MISSING_DEPENDENCIES=true
+          export USE_CUSTOM_VERSION=true
+          . build/envsetup.sh
+          lunch twrp_${{ github.event.inputs.device }}-ap2a-userdebug
+          mka bootimage
+
+      - name: Upload boot image
+        uses: actions/upload-artifact@v4
+        with:
+          name: twrp-${{ github.event.inputs.device }}
+          path: out/target/product/${{ github.event.inputs.device }}/boot.img
